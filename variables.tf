@@ -35,7 +35,7 @@ variable do_region {
     default = "SGP1"
 }
 
-vairable do_size {
+variable do_size {
     type = string
     default = "s-1vcpu-512mb-10gb"
 }
