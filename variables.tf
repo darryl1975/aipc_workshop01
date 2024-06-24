@@ -15,12 +15,12 @@ variable "docker_cert_path" {
 
 variable backend_version {
     type = string
-    default = "v3.1"
+    default = "v3"
 }
 
 variable database_version {
     type = string
-    default = "v3"
+    default = "v3.1"
 }
 
 variable backend_instance_count {

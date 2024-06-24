@@ -18,8 +18,8 @@ terraform {
 }
 
 provider "docker" {
-    host = "tcp://your-host-ip:2376/"
-    cert_path = pathexpand("~/.docker")
+    host = "tcp://${var.docker_host}:2376"
+    cert_path = var.docker_cert_path
 }
 
 provider "digitalocean" {

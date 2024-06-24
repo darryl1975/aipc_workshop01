@@ -1,9 +1,9 @@
 resource "docker_image" "bgg-database" {
-    name = "chukmunnlee/bgg-database: ${var.database_version}"
+    name = "chukmunnlee/bgg-database:${var.database_version}"
 }
 
 resource "docker_image" "bgg-backend" {
-    name = "chukmunnlee/bgg-backend: ${var.backend_version}"
+    name = "chukmunnlee/bgg-backend:${var.backend_version}"
 }
 
 resource "docker_network" "bgg-net" {
@@ -11,10 +11,14 @@ resource "docker_network" "bgg-net" {
 }
 
 resource "docker_volume" "data-vol" {
-  name = "mg-sgp-data-vol"
+  name = "my-sgp-data-vol"
 }
 
 resource "docker_container" "bgg-database" {
+
+    name = "my-sgp-bgg-database"
+
+    image = docker_image.bgg-database.image_id
 
     networks_advanced {
         name = docker_network.bgg-net.id
@@ -36,7 +40,7 @@ resource "docker_container" "bgg-backend" {
 
     name = "my-sgp-bgg-backend-${count.index}" 
 
-    image = docker_image.bgg-backend.image-id
+    image = docker_image.bgg-backend.image_id
 
     networks_advanced {
         name = docker_network.bgg-net.id
@@ -48,7 +52,7 @@ resource "docker_container" "bgg-backend" {
         "BGG_DB_HOST=${docker_container.bgg-database.name}"
     ]
 
-    ports = {
+    ports {
         internal = 3000
     }
 }
@@ -57,7 +61,7 @@ resource "local_file" "nginx-conf" {
     filename = "nginx.conf"
     content = templatefile("nginx.conf.tftpl", {
         docker_host = var.docker_host,
-        ports = docker_container.bgg-backend[*].ports[*].external
+        ports = docker_container.bgg-backend[*].ports[0].external
     })
 }
 
@@ -85,7 +89,7 @@ resource "digitalocean_droplet" "nginx" {
 
     provisioner "file" {
         source = local_file.nginx-conf.filename
-        destination = "/etc/inginx/nginx.conf"
+        destination = "/etc/nginx/nginx.conf"
     }
 
     provisioner "remote-exec" {
@@ -100,4 +104,12 @@ resource "local_file" "root_at_nginx" {
     filename = "root@${digitalocean_droplet.nginx.ipv4_address}"
     content = ""
     file_permission = "0444"
+}
+
+output nginx_ip {
+    value = digitalocean_droplet.nginx.ipv4_address
+}
+
+output backend_ports {
+    value = docker_container.bgg-backend[*].ports[0].external
 }
