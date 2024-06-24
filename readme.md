@@ -11,7 +11,9 @@
 5. execute terraform init to initialize and download the necessary providers specified in provider.tf.
 
 6. ensure your have the necessary DO_TOKEN defined as global environment variable.
+```
 export DO_TOKEN=<DO TOKEN>
+```
 
 7. Perform a terraform plan.
 ```
